@@ -38,14 +38,30 @@ function CreateForm(props) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyBcEeJ4KoXHs8nirA6E_OwOop0Ybyo59ms",
+    authDomain: "badbankauth-6e7a0.firebaseapp.com",
+    projectId: "badbankauth-6e7a0",
+    storageBucket: "badbankauth-6e7a0.appspot.com",
+    messagingSenderId: "1035938640903",
+    appId: "1:1035938640903:web:16e6e7f81ab72b9af866a2",
+  };
+
+  if (firebase.apps.length === 0) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
   function handle() {
-    console.log(name, email, password);
-    const url = `/account/create/${name}/${email}/${password}`;
-    (async () => {
-      var res = await fetch(url);
-      var data = await res.json();
-      console.log(data);
-    })();
+    fetch(`/account/create/${name}/${email}/${password}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        const auth = firebase.auth();
+        const promise = auth.createUserWithEmailAndPassword(email, password);
+
+        promise.catch(({ message }) => console.log(message));
+      });
+
     props.setShow(false);
   }
 

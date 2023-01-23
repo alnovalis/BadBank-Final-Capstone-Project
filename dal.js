@@ -2,15 +2,15 @@ const MongoClient = require("mongodb").MongoClient;
 const url = "mongodb://localhost:27017";
 let db = null;
 
-//connect to mongo
+// connect to mongo
 MongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
   console.log("Connected successfully to db server");
 
-  //connect to myproject database
+  // connect to myproject database
   db = client.db("myproject");
 });
 
-//create user account
+// create user account
 function create(name, email, password) {
   return new Promise((resolve, reject) => {
     const collection = db.collection("users");
@@ -21,7 +21,34 @@ function create(name, email, password) {
   });
 }
 
-//all users
+// find user account
+function findOne(email) {
+  return new Promise((resolve, reject) => {
+    const customers = db
+      .collection("users")
+      .findOne({ email: email })
+      .then((doc) => resolve(doc))
+      .catch((err) => reject(err));
+  });
+}
+
+// update - deposit/withdraw amount
+function update(email, amount) {
+  return new Promise((resolve, reject) => {
+    const customers = db
+      .collection("users")
+      .findOneAndUpdate(
+        { email: email },
+        { $inc: { balance: amount } },
+        { returnOriginal: false },
+        function (err, documents) {
+          err ? reject(err) : resolve(documents);
+        }
+      );
+  });
+}
+
+// all users
 function all() {
   return new Promise((resolve, reject) => {
     const customers = db
@@ -33,4 +60,4 @@ function all() {
   });
 }
 
-module.exports = { create, all };
+module.exports = { create, findOne, update, all };
